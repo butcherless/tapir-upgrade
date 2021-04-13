@@ -14,10 +14,10 @@ import scala.concurrent.Future
 trait ErrorHandlingApi {
 
   sealed trait InfoError
-  case class BadRequestError(m: String) extends InfoError
-  case class NotFoundError(m: String) extends InfoError
-  case class ConflictError(m: String) extends InfoError
-  case class Unknown(m: String) extends InfoError
+  case class BadRequestError(message: String) extends InfoError
+  case class NotFoundError(message: String) extends InfoError
+  case class ConflictError(message: String) extends InfoError
+  case class Unknown(message: String) extends InfoError
 
   val errorEndpoint: Endpoint[Int, InfoError, String, Any] =
     endpoint.get
