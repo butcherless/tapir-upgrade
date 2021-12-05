@@ -12,3 +12,4 @@ jobs:
           java-version: '11'
           cache: 'gradle'
       - run: ./gradlew -v
+      - run: ./gradlew clean build
