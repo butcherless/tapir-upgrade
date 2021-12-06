@@ -1,6 +1,7 @@
 package com.cmartin.learn
 
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.nonEmptyListOf
 import com.cmartin.learn.Model.Country
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,14 +10,113 @@ import kotlin.test.assertTrue
 class AppTest {
 
     @Test
+    fun `should validate text`() {
+        val text = "abcd1234"
+        val result = MyLib.validateText(text)
+        assertTrue(result.isRight(), "must be Right")
+        result.map { assertEquals(text, it) }
+    }
+
+    @Test
+    fun `should fail to validate text, length`() {
+        val text = "1234567890"
+        val result = MyLib.validateText(text)
+        assertTrue(result.isLeft(), "must be Valid")
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH), it)
+        }
+    }
+
+    @Test
+    fun `should fail to validate text, length and chars`() {
+        val text = "1234@@abcd"
+        val result = MyLib.validateText(text)
+        assertTrue(result.isLeft(), "must be Valid")
+        result.mapLeft {
+            assertEquals(
+                nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH, MyLib.INVALID_TEXT_CHARS), it
+            )
+        }
+    }
+
+    /*
+       S I N G LE   V A L I D A T O R S
+    */
+
+    @Test
+    fun `should validate non-empty text`() {
+        val text = "non-empty text"
+        val result = MyLib.validateNonEmptyText(text)
+        assertTrue(result.isValid, "must be Valid")
+        result.map { assertEquals(text, it) }
+    }
+
+    @Test
+    fun `should fail to validate non-empty text`() {
+        val text = " "
+        val result = MyLib.validateNonEmptyText(text)
+        assertTrue(result.isInvalid, "must be Invalid")
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(MyLib.EMPTY_TEXT), it)
+        }
+    }
+
+    @Test
+    fun `should validate text length`() {
+        val text = "12345678"
+        val result = MyLib.validateTextLength(text)
+        assertTrue(result.isValid, "must be Valid")
+        result.map { assertEquals(text, it) }
+    }
+
+    @Test
+    fun `should fail to validate text length`() {
+        val text = "1234567890"
+        val result = MyLib.validateTextLength(text)
+        assertTrue(result.isInvalid, "must be Invalid")
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH), it)
+        }
+    }
+
+    @Test
+    fun `should validate text chars`() {
+        val text = "abcd1234"
+        val result = MyLib.validateTextChars(text)
+        assertTrue(result.isValid, "must be Valid")
+        result.map { assertEquals(text, it) }
+    }
+
+    @Test
+    fun `should fail to validate text chars`() {
+        val text = "abc@_123"
+        val result = MyLib.validateTextChars(text)
+        assertTrue(result.isInvalid, "must be Invalid")
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_CHARS), it)
+        }
+    }
+
+    @Test
+    fun `should fail to validate text, empty`() {
+        val text = ""
+        val result = MyLib.validateText(text)
+        assertTrue(result.isLeft(), "must be Valid")
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(MyLib.EMPTY_TEXT), it)
+        }
+    }
+
+
+    @Test
     fun shouldReturnRight() {
-        val result = MyLib.validateNonEmptyText("not empty")
+        val result = MyLib.validateEitherNonEmptyText("not empty")
         assertTrue(result.isRight(), "must be Either.Right")
     }
 
     @Test
     fun shouldReturnLeft() {
-        val result = MyLib.validateNonEmptyText("")
+        val result = MyLib.validateEitherNonEmptyText("")
         assertTrue(result.isLeft(), "must be Either.Left")
     }
 
@@ -33,16 +133,6 @@ class AppTest {
     }
 
     @Test
-    fun shouldReturnX() {
-        val result1 = MyLib.validationOne("123456789")
-        println("WIP:" + result1.toString())
-        val result2 = MyLib.validationTwo("123456789")
-        println("WIP:" + result2.toString())
-        val result3 = MyLib.validationNel("123456789")
-        println("WIP:" + result3.toString())
-    }
-
-    @Test
     fun shouldReturnIntForValidCountry() {
         val country = Country("es", "Spain")
         val result: Either<String, Long> = MyLib.save(country)
@@ -55,6 +145,8 @@ class AppTest {
         val country = Country("", "Spain")
         val result: Either<String, Long> = MyLib.save(country)
         assertTrue(result.isLeft())
-        result.mapLeft { assertEquals("Empty code for: $country", it) }
+        result.mapLeft {
+            assertEquals("Empty code for: $country", it)
+        }
     }
 }
