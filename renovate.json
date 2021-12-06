@@ -1,4 +1,7 @@
 {
+  "automerge": true,
+  "automergeType": "pr",
+  "dependencyDashboard": true,
   "extends": [
     "config:base"
   ]
