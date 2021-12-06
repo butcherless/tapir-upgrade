@@ -5,7 +5,7 @@ import com.cmartin.learn.Model.Country
 import java.sql.SQLIntegrityConstraintViolationException
 
 
-object MyLib {
+object ValidationModule {
     const val EMPTY_TEXT = "empty text"
     const val INVALID_TEXT_LENGTH = "Invalid length"
     const val INVALID_TEXT_CHARS = "Invalid characters"
@@ -19,7 +19,8 @@ object MyLib {
     fun validateText(text: String): Either<Nel<ValidationError>, String> {
         return validateNonEmptyText(text)
             .zip(
-                validateTextLength(text), validateTextChars(text)
+                validateTextLength(text),
+                validateTextChars(text)
             ) { _, _, _ -> text }
             .toEither()
     }
