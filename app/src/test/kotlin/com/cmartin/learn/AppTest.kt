@@ -3,6 +3,7 @@ package com.cmartin.learn
 import arrow.core.Either
 import arrow.core.nonEmptyListOf
 import com.cmartin.learn.Model.Country
+import com.cmartin.learn.MyLib.ValidationError.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,7 +24,9 @@ class AppTest {
         val result = MyLib.validateText(text)
         assertTrue(result.isLeft(), "must be Valid")
         result.mapLeft {
-            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH), it)
+            assertEquals(
+                nonEmptyListOf(InvalidTextLength(text.length)), it
+            )
         }
     }
 
@@ -34,7 +37,7 @@ class AppTest {
         assertTrue(result.isLeft(), "must be Valid")
         result.mapLeft {
             assertEquals(
-                nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH, MyLib.INVALID_TEXT_CHARS), it
+                nonEmptyListOf(InvalidTextLength(text.length), InvalidTextChars(text)), it
             )
         }
     }
@@ -57,7 +60,7 @@ class AppTest {
         val result = MyLib.validateNonEmptyText(text)
         assertTrue(result.isInvalid, "must be Invalid")
         result.mapLeft {
-            assertEquals(nonEmptyListOf(MyLib.EMPTY_TEXT), it)
+            assertEquals(nonEmptyListOf(EmptyText(text.length)), it)
         }
     }
 
@@ -75,7 +78,7 @@ class AppTest {
         val result = MyLib.validateTextLength(text)
         assertTrue(result.isInvalid, "must be Invalid")
         result.mapLeft {
-            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_LENGTH), it)
+            assertEquals(nonEmptyListOf(InvalidTextLength(text.length)), it)
         }
     }
 
@@ -93,7 +96,7 @@ class AppTest {
         val result = MyLib.validateTextChars(text)
         assertTrue(result.isInvalid, "must be Invalid")
         result.mapLeft {
-            assertEquals(nonEmptyListOf(MyLib.INVALID_TEXT_CHARS), it)
+            assertEquals(nonEmptyListOf(InvalidTextChars(text)), it)
         }
     }
 
@@ -103,7 +106,7 @@ class AppTest {
         val result = MyLib.validateText(text)
         assertTrue(result.isLeft(), "must be Valid")
         result.mapLeft {
-            assertEquals(nonEmptyListOf(MyLib.EMPTY_TEXT), it)
+            assertEquals(nonEmptyListOf(EmptyText(text.length)), it)
         }
     }
 

@@ -10,7 +10,13 @@ object MyLib {
     const val INVALID_TEXT_LENGTH = "Invalid length"
     const val INVALID_TEXT_CHARS = "Invalid characters"
 
-    fun validateText(text: String): Either<Nel<String>, String> {
+    sealed class ValidationError(val message: String) {
+        data class EmptyText(val value: Int) : ValidationError(EMPTY_TEXT)
+        data class InvalidTextLength(val value: Int) : ValidationError(INVALID_TEXT_LENGTH)
+        data class InvalidTextChars(val value: String) : ValidationError(INVALID_TEXT_CHARS)
+    }
+
+    fun validateText(text: String): Either<Nel<ValidationError>, String> {
         return validateNonEmptyText(text)
             .zip(
                 validateTextLength(text), validateTextChars(text)
@@ -18,23 +24,24 @@ object MyLib {
             .toEither()
     }
 
-    fun validateNonEmptyText(text: String): ValidatedNel<String, String> {
-        return if (text.isBlank()) EMPTY_TEXT.invalidNel()
+    fun validateNonEmptyText(text: String): ValidatedNel<ValidationError, String> {
+        return if (text.isBlank()) ValidationError.EmptyText(text.length).invalidNel()
         else text.validNel()
     }
 
-    fun validateTextLength(text: String): ValidatedNel<String, String> {
-        return if (text.length > 8) INVALID_TEXT_LENGTH.invalidNel() else text.validNel()
+    fun validateTextLength(text: String): ValidatedNel<ValidationError, String> {
+        return if (text.length > 8) ValidationError.InvalidTextLength(text.length).invalidNel()
+        else text.validNel()
+    }
+
+    fun validateTextChars(text: String): ValidatedNel<ValidationError, String> {
+        return if (text.all { it.isLetterOrDigit() }) text.validNel()
+        else ValidationError.InvalidTextChars(text).invalidNel()
     }
 
 
     fun validateEitherNonEmptyText(text: String): Either<String, String> {
         return if (text.isBlank()) Either.Left(EMPTY_TEXT) else Either.Right(text)
-    }
-
-    fun validateTextChars(text: String): ValidatedNel<String, String> {
-        return if (text.all { it.isLetterOrDigit() }) text.validNel()
-        else INVALID_TEXT_CHARS.invalidNel()
     }
 
     // Simulates repository operation
@@ -46,6 +53,6 @@ object MyLib {
     fun save(country: Country): Either<String, Long> {
         return Either
             .catch { saveRepo(country) }
-            .mapLeft { it.message ?: "Unkown error" }
+            .mapLeft { it.message ?: "Unknown error" }
     }
 }
