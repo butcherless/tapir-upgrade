@@ -2,11 +2,11 @@ package com.cmartin.learn
 
 import arrow.core.*
 
-
 object ValidationModule {
     const val EMPTY_TEXT = "empty text"
     const val INVALID_TEXT_LENGTH = "Invalid length"
     const val INVALID_TEXT_CHARS = "Invalid characters"
+    const val MAX_TEXT_LENGTH = 8
 
     sealed class ValidationError(val message: String) {
         data class EmptyText(val value: Int) : ValidationError(EMPTY_TEXT)
@@ -16,11 +16,8 @@ object ValidationModule {
 
     fun validateText(text: String): Either<Nel<ValidationError>, String> {
         return validateNonEmptyText(text)
-            .zip(
-                validateTextLength(text),
-                validateTextChars(text)
-            ) { _, _, _ -> text }
-            .toEither()
+                .zip(validateTextLength(text), validateTextChars(text)) { _, _, _ -> text }
+                .toEither()
     }
 
     fun validateNonEmptyText(text: String): ValidatedNel<ValidationError, String> {
@@ -29,7 +26,8 @@ object ValidationModule {
     }
 
     fun validateTextLength(text: String): ValidatedNel<ValidationError, String> {
-        return if (text.length > 8) ValidationError.InvalidTextLength(text.length).invalidNel()
+        return if (text.length > MAX_TEXT_LENGTH)
+                ValidationError.InvalidTextLength(text.length).invalidNel()
         else text.validNel()
     }
 
@@ -37,10 +35,4 @@ object ValidationModule {
         return if (text.all { it.isLetterOrDigit() }) text.validNel()
         else ValidationError.InvalidTextChars(text).invalidNel()
     }
-
-
-    fun validateEitherNonEmptyText(text: String): Either<String, String> {
-        return if (text.isBlank()) Either.Left(EMPTY_TEXT) else Either.Right(text)
-    }
-
 }

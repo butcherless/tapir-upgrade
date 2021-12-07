@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 class ExceptionManagementTest {
 
     @Test
-    fun shouldReturnIntForValidCountry() {
+    fun `should return Int for valid Country`() {
         val country = Country(Code("es"), Name("Spain"))
         val result: Either<RepositoryError, Long> = DummyService.save(country)
         assertTrue(result.isRight())
@@ -21,7 +21,7 @@ class ExceptionManagementTest {
     }
 
     @Test
-    fun shouldReturnErrorForInvalidCountry() {
+    fun `should return error for invalid Country`() {
         val country = Country(Code(""), Name("Spain"))
         val result: Either<RepositoryError, Long> = DummyService.save(country)
         assertTrue(result.isLeft())
@@ -30,5 +30,4 @@ class ExceptionManagementTest {
             assertEquals(RepositoryError.DataIntegrityError(message), it)
         }
     }
-
 }
