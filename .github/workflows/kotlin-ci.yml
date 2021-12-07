@@ -13,8 +13,3 @@ jobs:
           cache: 'gradle'
       - run: ./gradlew -v
       - run: ./gradlew clean build
-      - uses: paambaati/codeclimate-action@v2.2.4
-        env:
-          CC_TEST_REPORTER_ID: db2f30943b2979f9768f67b6c00a4f4f538ffa86ec37d5d7c536988618e500b8
-        with:
-          coverageCommand: ./gradlew jacocoTestReport
