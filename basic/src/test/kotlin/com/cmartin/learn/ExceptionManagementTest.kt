@@ -3,8 +3,8 @@ package com.cmartin.learn
 import arrow.core.Either
 import com.cmartin.learn.ExceptionManagementModule.DummyService
 import com.cmartin.learn.ExceptionManagementModule.RepositoryError
-import com.cmartin.learn.Model.Country
 import com.cmartin.learn.Model.Code
+import com.cmartin.learn.Model.Country
 import com.cmartin.learn.Model.Name
 import kotlin.test.Test
 import kotlin.test.assertEquals

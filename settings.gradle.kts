@@ -9,4 +9,4 @@
 
 rootProject.name = "kotlin-research"
 
-include("app")
+include("basic")
