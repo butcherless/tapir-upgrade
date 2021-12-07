@@ -1,8 +1,6 @@
 package com.cmartin.learn
 
 import arrow.core.*
-import com.cmartin.learn.Model.Country
-import java.sql.SQLIntegrityConstraintViolationException
 
 
 object ValidationModule {
@@ -45,15 +43,4 @@ object ValidationModule {
         return if (text.isBlank()) Either.Left(EMPTY_TEXT) else Either.Right(text)
     }
 
-    // Simulates repository operation
-    fun saveRepo(country: Country): Long {
-        return if (country.code.isNotBlank()) 1
-        else throw SQLIntegrityConstraintViolationException("Empty code for: $country")
-    }
-
-    fun save(country: Country): Either<String, Long> {
-        return Either
-            .catch { saveRepo(country) }
-            .mapLeft { it.message ?: "Unknown error" }
-    }
 }
