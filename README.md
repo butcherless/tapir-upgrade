@@ -7,7 +7,7 @@
 ## Commands
 
 - ```./gradlew clean test jacocoTestReport```
-- ```./gradlew  test --tests ValidationModuleTes```
+- ```./gradlew test --tests ValidationModuleTest```
 
 ## Links
 - https://kotlinlang.org/docs/home.html

@@ -6,13 +6,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+private const val MUST_BE_RIGHT = "must be Right"
+private const val MUST_BE_LEFT = "must be Left"
+private const val MUST_BE_VALID = "must be Valid"
+private const val MUST_BE_INVALID = "must be Invalid"
+
 class ValidationModuleTest {
 
     @Test
     fun `should validate text`() {
         val text = "abcd1234"
         val result = ValidationModule.validateText(text)
-        assertTrue(result.isRight(), "must be Right")
+        assertTrue(result.isRight(), MUST_BE_RIGHT)
         result.map { assertEquals(text, it) }
     }
 
@@ -20,15 +25,17 @@ class ValidationModuleTest {
     fun `should fail to validate text, empty`() {
         val text = ""
         val result = ValidationModule.validateText(text)
-        assertTrue(result.isLeft(), "must be Valid")
-        result.mapLeft { assertEquals(nonEmptyListOf(EmptyText(text.length)), it) }
+        assertTrue(result.isLeft(), MUST_BE_LEFT)
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(EmptyText(text.length)), it)
+        }
     }
 
     @Test
     fun `should fail to validate text, length`() {
         val text = "1234567890"
         val result = ValidationModule.validateText(text)
-        assertTrue(result.isLeft(), "must be Left")
+        assertTrue(result.isLeft(), MUST_BE_LEFT)
         result.mapLeft { assertEquals(nonEmptyListOf(InvalidTextLength(text.length)), it) }
     }
 
@@ -36,9 +43,10 @@ class ValidationModuleTest {
     fun `should fail to validate text, length and chars`() {
         val text = "1234@@abcd"
         val result = ValidationModule.validateText(text)
-        assertTrue(result.isLeft(), "must be Left")
+        assertTrue(result.isLeft(), MUST_BE_LEFT)
         result.mapLeft {
             assertEquals(nonEmptyListOf(InvalidTextLength(text.length), InvalidTextChars(text)), it)
+            println("errors:  $it")
         }
     }
 
@@ -50,7 +58,7 @@ class ValidationModuleTest {
     fun `should validate non-empty text`() {
         val text = "non-empty text"
         val result = ValidationModule.validateNonEmptyText(text)
-        assertTrue(result.isValid, "must be Valid")
+        assertTrue(result.isValid, MUST_BE_VALID)
         result.map { assertEquals(text, it) }
     }
 
@@ -58,15 +66,17 @@ class ValidationModuleTest {
     fun `should fail to validate non-empty text`() {
         val text = " "
         val result = ValidationModule.validateNonEmptyText(text)
-        assertTrue(result.isInvalid, "must be Invalid")
-        result.mapLeft { assertEquals(nonEmptyListOf(EmptyText(text.length)), it) }
+        assertTrue(result.isInvalid, MUST_BE_INVALID)
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(EmptyText(text.length)), it)
+        }
     }
 
     @Test
     fun `should validate text length`() {
         val text = "12345678"
         val result = ValidationModule.validateTextLength(text)
-        assertTrue(result.isValid, "must be Valid")
+        assertTrue(result.isValid, MUST_BE_VALID)
         result.map { assertEquals(text, it) }
     }
 
@@ -74,15 +84,17 @@ class ValidationModuleTest {
     fun `should fail to validate text length`() {
         val text = "1234567890"
         val result = ValidationModule.validateTextLength(text)
-        assertTrue(result.isInvalid, "must be Invalid")
-        result.mapLeft { assertEquals(nonEmptyListOf(InvalidTextLength(text.length)), it) }
+        assertTrue(result.isInvalid, MUST_BE_INVALID)
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(InvalidTextLength(text.length)), it)
+        }
     }
 
     @Test
     fun `should validate text chars`() {
         val text = "abcd1234"
         val result = ValidationModule.validateTextChars(text)
-        assertTrue(result.isValid, "must be Valid")
+        assertTrue(result.isValid, MUST_BE_VALID)
         result.map { assertEquals(text, it) }
     }
 
@@ -90,19 +102,10 @@ class ValidationModuleTest {
     fun `should fail to validate text chars`() {
         val text = "abc@_123"
         val result = ValidationModule.validateTextChars(text)
-        assertTrue(result.isInvalid, "must be Invalid")
-        result.mapLeft { assertEquals(nonEmptyListOf(InvalidTextChars(text)), it) }
+        assertTrue(result.isInvalid, MUST_BE_INVALID)
+        result.mapLeft {
+            assertEquals(nonEmptyListOf(InvalidTextChars(text)), it)
+        }
     }
 
-    @Test
-    fun `should return valid`() {
-        val result = ValidationModule.validateTextLength("abc")
-        assertTrue(result.isValid, "must be Valid")
-    }
-
-    @Test
-    fun `should return invalid`() {
-        val result = ValidationModule.validateTextLength("12345678xx")
-        assertTrue(result.isInvalid, "must be Invalid")
-    }
 }

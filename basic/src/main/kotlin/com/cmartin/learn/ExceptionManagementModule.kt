@@ -5,20 +5,18 @@ import java.sql.SQLIntegrityConstraintViolationException
 import java.sql.SQLTimeoutException
 
 object ExceptionManagementModule {
-    const val CONNECTION_ERROR = "There was a problem with the connection"
-    const val DATA_INTEGRITY_ERROR = "There was a problem with the data integrity"
-    const val SQL_SYNTAX_ERROR = "There was a problem with the SQL syntax"
-    const val SQL_UNKNOWN_ERROR = "There was an unspecified problem"
     const val INVALID_DATA_MSG = "Invalid data"
 
-    sealed class RepositoryError(val message: String) {
-        data class ConnectionError(val value: String) : RepositoryError(CONNECTION_ERROR)
-        data class DataIntegrityError(val value: String) : RepositoryError(DATA_INTEGRITY_ERROR)
-        data class SqlSyntaxError(val value: String) : RepositoryError(SQL_SYNTAX_ERROR)
-        data class UnknownError(val value: String) : RepositoryError(SQL_UNKNOWN_ERROR)
+    /** Error Model - ADT
+     */
+    sealed class RepositoryError {
+        data class ConnectionError(val value: String) : RepositoryError()
+        data class DataIntegrityError(val value: String) : RepositoryError()
+        data class SqlSyntaxError(val value: String) : RepositoryError()
+        data class UnknownError(val value: String) : RepositoryError()
     }
 
-    /* Simulates repository operations with exception throwing.
+    /** Simulates repository operations with exception throwing.
      */
     object DummyRepository {
         fun saveRepo(country: Model.Country): Long {
@@ -27,16 +25,19 @@ object ExceptionManagementModule {
         }
     }
 
+    /** Service with exception management. Use cases:
+     *  a) succeed: Either<_, A> - succeed output type
+     *  b) failed:  Either<E, _> - failed  output type
+     */
     object DummyService {
-        fun save(country: Model.Country): Either<RepositoryError, Long> {
-            return Either
+        fun save(country: Model.Country): Either<RepositoryError, Long> =
+            Either
                 .catch { DummyRepository.saveRepo(country) }
                 .mapLeft { manageException(it) }
-        }
     }
 
-    private fun manageException(th: Throwable): RepositoryError {
-        return when (th) {
+    private fun manageException(th: Throwable): RepositoryError =
+        when (th) {
             is SQLIntegrityConstraintViolationException ->
                 RepositoryError.DataIntegrityError(th.localizedMessage)
             is SQLTimeoutException ->
@@ -44,5 +45,4 @@ object ExceptionManagementModule {
             else ->
                 RepositoryError.UnknownError(th.localizedMessage)
         }
-    }
 }

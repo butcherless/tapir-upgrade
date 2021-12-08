@@ -1,38 +1,50 @@
 package com.cmartin.learn
 
 import arrow.core.*
+import com.cmartin.learn.ValidationModule.ValidationError.*
 
 object ValidationModule {
-    const val EMPTY_TEXT = "empty text"
-    const val INVALID_TEXT_LENGTH = "Invalid length"
-    const val INVALID_TEXT_CHARS = "Invalid characters"
-    const val MAX_TEXT_LENGTH = 8
+    private const val MAX_TEXT_LENGTH = 8
 
-    sealed class ValidationError(val message: String) {
-        data class EmptyText(val value: Int) : ValidationError(EMPTY_TEXT)
-        data class InvalidTextLength(val value: Int) : ValidationError(INVALID_TEXT_LENGTH)
-        data class InvalidTextChars(val value: String) : ValidationError(INVALID_TEXT_CHARS)
+    /** Error Model - ADT
+     */
+    sealed class ValidationError {
+        data class EmptyText(val value: Int) : ValidationError()
+        data class InvalidTextLength(val value: Int) : ValidationError()
+        data class InvalidTextChars(val message: String) : ValidationError()
     }
 
-    fun validateText(text: String): Either<Nel<ValidationError>, String> {
-        return validateNonEmptyText(text)
-                .zip(validateTextLength(text), validateTextChars(text)) { _, _, _ -> text }
-                .toEither()
-    }
+    /** Validate text with error accumulation. Use cases:
+     *  a) validation succeed: Either<_, A> - A validated
+     *  b) validation failed:  Either<Nel<E>, _> - NonEmptyList<E> errors
+     */
+    fun validateText(text: String): Either<Nel<ValidationError>, String> =
+        validateNonEmptyText(text)
+            .zip(
+                validateTextLength(text),
+                validateTextChars(text)
+            ) { _, _, _ -> text }
+            .toEither()
 
-    fun validateNonEmptyText(text: String): ValidatedNel<ValidationError, String> {
-        return if (text.isBlank()) ValidationError.EmptyText(text.length).invalidNel()
+    /** Validate a non-blank text
+     *  a) succeed: the text
+     *  b) failed: error non-empty-list
+     */
+    fun validateNonEmptyText(text: String): ValidatedNel<ValidationError, String> =
+        if (text.isBlank()) EmptyText(text.length).invalidNel()
         else text.validNel()
-    }
 
-    fun validateTextLength(text: String): ValidatedNel<ValidationError, String> {
-        return if (text.length > MAX_TEXT_LENGTH)
-                ValidationError.InvalidTextLength(text.length).invalidNel()
+    /** Validate a non-blank text
+     *  a) succeed: the text
+     *  b) failed: error non-empty-list
+     */
+    fun validateTextLength(text: String): ValidatedNel<ValidationError, String> =
+        if (text.length > MAX_TEXT_LENGTH)
+            InvalidTextLength(text.length).invalidNel()
         else text.validNel()
-    }
 
-    fun validateTextChars(text: String): ValidatedNel<ValidationError, String> {
-        return if (text.all { it.isLetterOrDigit() }) text.validNel()
-        else ValidationError.InvalidTextChars(text).invalidNel()
-    }
+    fun validateTextChars(text: String): ValidatedNel<ValidationError, String> =
+        if (text.all { it.isLetterOrDigit() }) text.validNel()
+        else InvalidTextChars(text).invalidNel()
+
 }
