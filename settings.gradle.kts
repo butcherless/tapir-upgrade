@@ -10,3 +10,4 @@
 rootProject.name = "kotlin-research"
 
 include("basic")
+include("spring-boot")
