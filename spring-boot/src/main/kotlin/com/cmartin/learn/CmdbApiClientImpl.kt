@@ -40,7 +40,7 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .headers { it.setBasicAuth(deps.authToken) }
                     .body(BodyInserters.fromFormData(buildAuthData()))
-                    .exchange().block()
+                    .exchangeToMono { it.toMono() }.block()
                     .toOption().toEither { EmptyResponse(EMPTY_TOKEN_RESPONSE) }
             }.flatMap { response ->
                 manageHttpCode(response.statusCode())
@@ -57,7 +57,7 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers { buildAuthHeaders(token, it) }
                     .body(buildRootData(code), Map::class.java)
-                    .exchange().block()
+                    .exchangeToMono { it.toMono() }.block()
                     .toOption().toEither { EmptyResponse(EMPTY_PARENT_OU_RESPONSE) }
             }.flatMap { response ->
                 manageHttpCode(response.statusCode()).flatMap {
@@ -74,13 +74,16 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers { buildAuthHeaders(token, it) }
                     .body(buildDescendantsData(code), Map::class.java)
-                    .exchange().block().toOption().toEither { EmptyResponse(EMPTY_DESCENDANT_OU_RESPONSE) }
+                    .exchangeToMono { it.toMono() }.block()
+                    .toOption().toEither { EmptyResponse(EMPTY_DESCENDANT_OU_RESPONSE) }
             }.flatMap { response ->
                 manageHttpCode(response.statusCode()).flatMap {
                     retrieveDescendants(response, code)
                 }
             }
 
+    /* Map Exceptions to DomainError as required
+     */
     private fun manageErrors(th: Throwable): Either<CmdbApiClientError, Nothing> =
         when (th) {
             else -> DefaultError(th.localizedMessage)
@@ -195,6 +198,9 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
             val OuId: String,
             val ParentOuId: Int
         )
+
+        private fun ClientResponse.toMono(): Mono<ClientResponse> =
+            Mono.just(this)
 
         private inline fun <reified T : Any> ClientResponse.option(): Option<T> {
             return this.bodyToMono<T>().block().toOption()
