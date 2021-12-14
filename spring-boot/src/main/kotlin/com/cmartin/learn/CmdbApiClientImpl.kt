@@ -87,11 +87,14 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
             }
 
     /* Map Exceptions to DomainError as required
-     */
-    private fun manageErrors(th: Throwable): Either<CmdbApiClientError, Nothing> =
         when (th) {
+            ... ->
+            ... ->
             else -> DefaultError(th.localizedMessage)
         }.left()
+     */
+    private fun manageErrors(th: Throwable): Either<CmdbApiClientError, Nothing> =
+        DefaultError(th.localizedMessage).left()
 
 
     private fun manageHttpCode(code: HttpStatus): Either<CmdbApiClientError, HttpStatus> {
