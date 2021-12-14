@@ -12,6 +12,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm")
     kotlin("plugin.spring")
+    application
     jacoco
 }
 
@@ -62,4 +63,9 @@ tasks.jacocoTestReport {
         csv.required.set(false)
         html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
+}
+
+application {
+    // Define the main class for the application.
+    mainClass.set("com.cmartin.learn.App")
 }
