@@ -48,7 +48,7 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
             }.flatMap { pair ->
                 manageHttpCode(pair.first)
                     .flatMap {
-                        retrieve2Token(pair.second)
+                        retrieveToken(pair.second)
                     }
             }
 
@@ -61,7 +61,8 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers { buildAuthHeaders(token, it) }
                     .body(buildRootData(code), Map::class.java)
-                    .exchangeToMono { res -> Mono.just(res) }
+                    //.exchangeToMono { r -> r.toMono() }
+                    .exchange()
                     .block().resToEither(EmptyResponse(EMPTY_PARENT_OU_RESPONSE))
             }.flatMap { response ->
                 manageHttpCode(response.statusCode()).flatMap {
@@ -78,7 +79,8 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                     .contentType(MediaType.APPLICATION_JSON)
                     .headers { buildAuthHeaders(token, it) }
                     .body(buildDescendantsData(code), Map::class.java)
-                    .exchangeToMono { res -> Mono.just(res) }
+                    //.exchangeToMono { r -> r.toMono() }
+                    .exchange()
                     .block().resToEither(EmptyResponse(EMPTY_DESCENDANT_OU_RESPONSE))
             }.flatMap { response ->
                 manageHttpCode(response.statusCode()).flatMap {
@@ -106,23 +108,8 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
         }
     }
 
-    private fun retrieve2Token(map: Map<String, String>): Either<CmdbApiClientError, String> =
+    private fun retrieveToken(map: Map<String, String>): Either<CmdbApiClientError, String> =
         map[ACCESS_TOKEN_KEY]?.let { Right(it) } ?: MissingToken("missing token key: $ACCESS_TOKEN_KEY").left()
-
-    private fun retrieveToken(response: ClientResponse): Either<CmdbApiClientError, String> =
-        response.bodyToEither<Map<String, String>>(EmptyResponse("empty response for token request"))
-            .flatMap { map ->
-                map[ACCESS_TOKEN_KEY]?.let { Right(it) } ?: MissingToken("missing token key: $ACCESS_TOKEN_KEY").left()
-            }
-
-    private fun retrieve2ParentId(view: DescendantsView, code: String): Either<CmdbApiClientError, String> =
-        view.right()
-            .tap { v -> logger.debug("retrieveParentId - number of OUs retrieved: ${v.numeroTotalRegistros}") }
-            .flatMap {
-                if (view.numeroTotalRegistros == 0) NoResults("$NO_RESULTS_OU_CODE: $code").left()
-                else view.listaResultado.first().id.toString().right()
-            }
-
 
     private fun retrieveParentId(response: ClientResponse, code: String): Either<CmdbApiClientError, String> =
         response.bodyToEither<DescendantsView>(EmptyResponse("Empty body for parent OU request"))
@@ -132,8 +119,6 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
                 else view.listaResultado.first().id.toString().right()
             }
 
-
-    //.bodyToMono<DescendantsView>().block()!!
     private fun retrieveDescendants(
         response: ClientResponse,
         code: String
@@ -209,10 +194,10 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
             val description: String,
             val id: Int,
             val yearOuId: Int,
-            val ManagerId: Int,
+            val managerId: Int,
             val typeId: Int,
-            val OuId: String,
-            val ParentOuId: Int
+            val ouId: String,
+            val parentOuId: Int
         )
 
         private inline fun <reified T : Any> extractResponse(res: ClientResponse): Mono<Pair<HttpStatus, T>> =
@@ -225,6 +210,9 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
 
         private inline fun <reified T : Any> T?.resToEither(error: CmdbApiClientError): Either<CmdbApiClientError, T> =
             this?.let { Right(it) } ?: Left(error)
+
+        private fun ClientResponse.toMono(): Mono<ClientResponse> =
+            Mono.just(this)
 
         private fun ClientResponse?.resToEither(error: CmdbApiClientError): Either<CmdbApiClientError, ClientResponse> =
             this?.right() ?: error.left()

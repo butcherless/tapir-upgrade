@@ -12,9 +12,7 @@ plugins {
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     kotlin("jvm")
     kotlin("plugin.spring")
-
-    // Apply the application plugin to add support for building a CLI application in Java.
-    application
+    jacoco
 }
 
 dependencies {
@@ -29,6 +27,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // Use the Kotlin test library.
     //testImplementation("org.jetbrains.kotlin:kotlin-test")
@@ -43,11 +42,6 @@ dependencies {
     //testRuntimeOnly ("org.junit.platform:junit-platform-launcher")
 }
 
-application {
-    // Define the main class for the application.
-    mainClass.set("com.cmartin.learn.App")
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
@@ -60,4 +54,12 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.jacocoTestReport {
+    reports {
+        xml.required.set(false)
+        csv.required.set(false)
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+    }
 }
