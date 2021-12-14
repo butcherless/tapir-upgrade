@@ -114,7 +114,7 @@ class CmdbApiClientImpl(private val deps: CmdbClientDeps) {
 
     private fun retrieve2ParentId(view: DescendantsView, code: String): Either<CmdbApiClientError, String> =
         view.right()
-            .tap { view -> logger.debug("retrieveParentId - number of OUs retrieved: ${view.numeroTotalRegistros}") }
+            .tap { v -> logger.debug("retrieveParentId - number of OUs retrieved: ${v.numeroTotalRegistros}") }
             .flatMap {
                 if (view.numeroTotalRegistros == 0) NoResults("$NO_RESULTS_OU_CODE: $code").left()
                 else view.listaResultado.first().id.toString().right()
