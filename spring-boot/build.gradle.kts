@@ -8,17 +8,13 @@
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    kotlin("jvm")
     id("org.springframework.boot") version "2.6.1"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
+    kotlin("jvm")
+    kotlin("plugin.spring")
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
-}
-
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
 }
 
 dependencies {
@@ -35,10 +31,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 
     // Use the Kotlin test library.
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    //testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("com.squareup.okhttp3:okhttp")
+    testImplementation("com.squareup.okhttp3:mockwebserver")
 
     // Use the Kotlin JUnit integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    //testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+    //testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    //testRuntimeOnly ("org.junit.platform:junit-platform-launcher")
 }
 
 application {
@@ -51,6 +53,11 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions { jvmTarget = "11" }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

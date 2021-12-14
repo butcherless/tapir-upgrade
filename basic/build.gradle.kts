@@ -13,10 +13,6 @@ plugins {
     application
 }
 
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
-}
 
 dependencies {
     // Align versions of all Kotlin components
