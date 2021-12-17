@@ -39,7 +39,6 @@ class CmdbApiClientTest {
         // then
         Assertions.assertTrue(result.isRight())
         result.map {
-            val x = it
             Assertions.assertEquals(1, it.size)
         }
         server.shutdown()
