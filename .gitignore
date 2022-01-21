@@ -4,5 +4,6 @@
 .idea/
 .metals/
 .vscode/
+bin/
 build/
 target/
