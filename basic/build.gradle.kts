@@ -22,6 +22,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     implementation("io.arrow-kt:arrow-core:1.1.0")
+    
+    // renovate bot testing
+    implementation("ch.qos.logback:logback-classic:1.2.10")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
