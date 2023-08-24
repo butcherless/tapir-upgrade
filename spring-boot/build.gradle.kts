@@ -8,7 +8,7 @@
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.springframework.boot") version "2.7.14"
+    id("org.springframework.boot") version "2.7.15"
     id("io.spring.dependency-management") version "1.1.3"
     kotlin("jvm")
     kotlin("plugin.spring")
