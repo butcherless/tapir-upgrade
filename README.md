@@ -15,6 +15,7 @@
 
 [Badge-CI]: https://github.com/butcherless/kotlin-research/actions/workflows/kotlin-ci.yml/badge.svg
 
+```plantuml
 @startuml
 
 artifact artifact1
@@ -38,3 +39,4 @@ artifact1 --^ artifact9
 artifact1 --(0 artifact10
 
 @enduml
+```
