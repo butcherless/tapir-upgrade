@@ -15,17 +15,26 @@
 
 [Badge-CI]: https://github.com/butcherless/kotlin-research/actions/workflows/kotlin-ci.yml/badge.svg
 
-```mermaid
-block-beta
-  columns 3
-  a:3
-  block:group1:2
-    columns 2
-    h i j k
-  end
-  g
-  block:group2:3
-    %% columns auto (default)
-    l m n o p q r
-  end
-```
+@startuml
+
+artifact artifact1
+artifact artifact2
+artifact artifact3
+artifact artifact4
+artifact artifact5
+artifact artifact6
+artifact artifact7
+artifact artifact8
+artifact artifact9
+artifact artifact10
+artifact1 --> artifact2
+artifact1 --* artifact3
+artifact1 --o artifact4
+artifact1 --+ artifact5
+artifact1 --# artifact6
+artifact1 -->> artifact7
+artifact1 --0 artifact8
+artifact1 --^ artifact9
+artifact1 --(0 artifact10
+
+@enduml
