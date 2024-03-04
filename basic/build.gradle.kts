@@ -24,7 +24,7 @@ dependencies {
     implementation("io.arrow-kt:arrow-core:1.2.3")
     
     // renovate bot testing
-    implementation("ch.qos.logback:logback-classic:1.5.2")
+    implementation("ch.qos.logback:logback-classic:1.5.3")
 
     // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
